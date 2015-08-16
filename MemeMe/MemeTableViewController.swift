@@ -12,10 +12,12 @@ class MemeTableViewController: UIViewController, UITableViewDataSource, UITableV
 
     var memes: [Meme]?
     
-    //TODO: Remove the tempMeme1 and tempMeme2
-    let tempMeme1 = Meme(topText: "Big text", bottomText: "Bottom Big", memeImage: UIImage(named: "big")!, sentMemeImage: UIImage(named: "big")!)
-    let tempMeme2 = Meme(topText: "Drax text", bottomText: "Bottom Drax", memeImage: UIImage(named: "drax")!, sentMemeImage: UIImage(named: "drax")!)
+    @IBOutlet weak var memeTableView: UITableView!
     
+//    //TODO: Remove the tempMeme1 and tempMeme2
+//    let tempMeme1 = Meme(topText: "Big text", bottomText: "Bottom Big", memeImage: UIImage(named: "big")!, sentMemeImage: UIImage(named: "big")!)
+//    let tempMeme2 = Meme(topText: "Drax text", bottomText: "Bottom Drax", memeImage: UIImage(named: "drax")!, sentMemeImage: UIImage(named: "drax")!)
+//    
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return memes!.count
@@ -23,14 +25,16 @@ class MemeTableViewController: UIViewController, UITableViewDataSource, UITableV
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCellWithIdentifier("memeImageCell") as! MemeTableViewCell
+        let cell = tableView.dequeueReusableCellWithIdentifier("memeImageCell") as! UITableViewCell
         
         let meme = self.memes?[indexPath.row]
         
         // Set the cell attributes - top & bottom text and the image
-        cell.topLabelText?.text = meme?.topText
-        cell.bottomLabelText.text = meme?.bottomText
-        cell.memeImage.image = meme?.memeImage
+        
+        cell.textLabel?.text = meme!.topText + "..." + meme!.bottomText
+        //cell.topLabelText?.text = meme?.topText
+        //cell.bottomLabelText.text = meme?.bottomText
+        cell.imageView?.image = meme?.sentMemeImage
 
         return cell
         
@@ -66,18 +70,30 @@ class MemeTableViewController: UIViewController, UITableViewDataSource, UITableV
         let appDelegate = object as! AppDelegate
         memes = appDelegate.memes
         
-        //TODO: create temp memes for testing purposes, remove these
-        memes?.append(tempMeme1)
-        memes?.append(tempMeme2)
+        
+        
+//        //TODO: create temp memes for testing purposes, remove these
+//        memes?.append(tempMeme1)
+//        memes?.append(tempMeme2)
         
         //If there are no previous memes to show then instantiate the Meme Editor
         if memes!.count == 0 {
-            let object:AnyObject = self.storyboard!.instantiateViewControllerWithIdentifier("MemeEditorVC")!
-            let memeEditorVC = object as! MemeEditorViewController
             
-            //Present the view controller using navigation
-            self.navigationController!.pushViewController(memeEditorVC, animated: true)
+            openMemeEditor()
+            
         }
+        
+        memeTableView.reloadData()
+
+    
+    }
+    
+    
+    
+    @IBAction func editMeme(sender: AnyObject) {
+        
+        openMemeEditor()
+        
     }
 
      override func didReceiveMemoryWarning() {
@@ -86,14 +102,13 @@ class MemeTableViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+    func openMemeEditor() {
+        
+        let object:AnyObject = self.storyboard!.instantiateViewControllerWithIdentifier("MemeEditorVC")!
+        let memeEditorVC = object as! MemeEditorViewController
+        
+        //Present the view controller using navigation
+        self.navigationController!.pushViewController(memeEditorVC, animated: true)
+        
     }
-    */
-
 }
