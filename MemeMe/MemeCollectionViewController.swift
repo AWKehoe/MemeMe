@@ -25,17 +25,7 @@ class MemeCollectionViewController: UIViewController, UICollectionViewDataSource
         memes = appDelegate.memes
         
         
-        //If there are no previous memes to show then instantiate the Meme Editor
-        if memes!.count == 0 {
-            let object:AnyObject = self.storyboard!.instantiateViewControllerWithIdentifier("MemeEditorVC")!
-            let memeEditorVC = object as! MemeEditorViewController
-            
-            //Present the view controller using navigation
-            self.navigationController!.pushViewController(memeEditorVC, animated: true)
-        }
-        
-        memeCollectionView.reloadData()
-}
+    }
     
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return self.memes!.count
@@ -68,30 +58,17 @@ class MemeCollectionViewController: UIViewController, UICollectionViewDataSource
         
         openMemeEditor()
 
-        
     }
+
     
     func openMemeEditor() {
         
         let object:AnyObject = self.storyboard!.instantiateViewControllerWithIdentifier("MemeEditorVC")!
         let memeEditorVC = object as! MemeEditorViewController
         
-        //Present the view controller using navigation
-        self.navigationController!.pushViewController(memeEditorVC, animated: true)
+        //Present the view controller.
+        self.presentViewController(memeEditorVC, animated: true, completion: nil)
         
     }
     
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    
-
 }

@@ -12,6 +12,8 @@ class MemeEditorViewController: UIViewController, UITextFieldDelegate, UIImagePi
 
     var mImage: UIImage!
     
+    var memes: [Meme]?
+
     @IBOutlet weak var topMemeText: UITextField!
     @IBOutlet weak var bottomMemeText: UITextField!
     @IBOutlet weak var memeImage: UIImageView!
@@ -25,8 +27,10 @@ class MemeEditorViewController: UIViewController, UITextFieldDelegate, UIImagePi
     let imagePickerController = UIImagePickerController()
 
     var textFieldWithFocus: Int?
+    var i = 1
     
     //TODO: setting data source for camera
+    //TODO: Use firstresponders for field testing
     
     //Create placeholder for text attributes
     var memeTextAttributes: [String: NSObject] = [:]
@@ -36,16 +40,13 @@ class MemeEditorViewController: UIViewController, UITextFieldDelegate, UIImagePi
         
         super.viewDidLoad()
         
-        //Set the editor formats and states of nav bar and buttons
-        prepareEditorFormat()
+        let object = UIApplication.sharedApplication().delegate
+        let appDelegate = object as! AppDelegate
+        memes = appDelegate.memes
         
-        //Allocate delegates for both text fields to self.
-        self.topMemeText.delegate = self
-        self.bottomMemeText.delegate = self
+        prepareEditorView()
+        setTextFieldsBehaviour()
         
-        //Set the image sources - delegate for imagePicker and check if device camera available. If no camera disable camera button.
-        imagePickerController.delegate = self
-        memeCameraButtonItem.enabled = UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.Camera)
         
     }
 
@@ -144,6 +145,7 @@ class MemeEditorViewController: UIViewController, UITextFieldDelegate, UIImagePi
     @IBAction func selectImageFromAlbum(sender: UIBarButtonItem) {
             
             imagePickerController.allowsEditing = false
+            imagePickerController.delegate = self
             imagePickerController.sourceType = .PhotoLibrary
             self.presentViewController(imagePickerController, animated: true, completion: nil)
             
@@ -155,14 +157,15 @@ class MemeEditorViewController: UIViewController, UITextFieldDelegate, UIImagePi
         if let pickedImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
             memeImage.image = pickedImage
             memeSaveButtonItem.enabled = true
+            self.dismissViewControllerAnimated(true, completion: nil)
+
            
         }
         
-        dismissViewControllerAnimated(true, completion: nil)
     }
 
     func imagePickerControllerDidCancel(picker: UIImagePickerController) {
-        dismissViewControllerAnimated(true, completion: nil)
+        self.dismissViewControllerAnimated(true, completion: nil)
     }
     
     @IBAction func shareMeme(sender: UIBarButtonItem) {
@@ -219,12 +222,15 @@ class MemeEditorViewController: UIViewController, UITextFieldDelegate, UIImagePi
     }
     
     func returntoTabController() {
-            if let navigationController = self.navigationController {
-                navigationController.popToRootViewControllerAnimated(true)
-            }
+
+        var controller: UITabBarController
+        controller = self.storyboard?.instantiateViewControllerWithIdentifier("tabBarController") as! UITabBarController
+        self.presentViewController(controller, animated: true, completion: nil)
+        
+        
     }
  
-    func prepareEditorFormat() {
+    func prepareEditorView() {
         
         //Set the text attributes for two text fields
         memeTextAttributes = [
@@ -234,12 +240,16 @@ class MemeEditorViewController: UIViewController, UITextFieldDelegate, UIImagePi
             NSFontAttributeName : UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
             NSStrokeWidthAttributeName : -3.0,
             NSKernAttributeName : 2
+            
         ]
         
         
         //Set the top and bottom text to TEXT and text attributes
         topMemeText.text = "TOP"
         bottomMemeText.text  = "BOTTOM"
+        
+        //Set image to nil
+        memeImage.image = nil
         
         //Set the default text attributes for top and bottom text fields
         topMemeText.defaultTextAttributes = memeTextAttributes
@@ -249,19 +259,25 @@ class MemeEditorViewController: UIViewController, UITextFieldDelegate, UIImagePi
         topMemeText.textAlignment = .Center
         bottomMemeText.textAlignment = .Center
         
-        //Set textField to clear on editing
-        topMemeText.clearsOnBeginEditing = true
-        bottomMemeText.clearsOnBeginEditing = true
-        
-        
-        //Setup top navigaTion bar
-        memeSaveButtonItem.style = UIBarButtonItemStyle.Plain
-        
-        //Disbale save button to start sharing of unfinished memes
         memeSaveButtonItem.enabled = false
+
+        
+        //Set the image sources - delegate for imagePicker and check if device camera available. If no camera disable camera button.
+        memeCameraButtonItem.enabled = UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.Camera)
         
 
     }
     
+    func setTextFieldsBehaviour() {
+        
+        //Set textField to clear on editing
+        topMemeText.clearsOnBeginEditing = true
+        bottomMemeText.clearsOnBeginEditing = true
+        
+        //Allocate delegates for both text fields to self.
+        self.topMemeText.delegate = self
+        self.bottomMemeText.delegate = self
+        
+    }
 }
 

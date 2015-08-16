@@ -17,3 +17,5 @@ struct Meme {
     let sentMemeImage: UIImage
     
 }
+
+
