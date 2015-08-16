@@ -10,7 +10,7 @@ import UIKit
 
 class MemeEditorViewController: UIViewController, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
-    var mImage: UIImage!    
+    var mImage: UIImage!
     
     @IBOutlet weak var topMemeText: UITextField!
     @IBOutlet weak var bottomMemeText: UITextField!
@@ -26,21 +26,10 @@ class MemeEditorViewController: UIViewController, UITextFieldDelegate, UIImagePi
 
     var textFieldWithFocus: Int?
     
-    //TODO: write code for top right Cancel button
-    //TODO: write code for share button
     //TODO: setting data source for camera
     
-    //Set the default attributes for the top and bottom text fields
-    
-    let memeTextAttributes = [
-        
-        NSStrokeColorAttributeName : UIColor.blackColor(),
-        NSForegroundColorAttributeName : UIColor.whiteColor(),
-        NSFontAttributeName : UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
-        NSStrokeWidthAttributeName : -3.0,
-        NSKernAttributeName : 2
-    ]
-    
+    //Create placeholder for text attributes
+    var memeTextAttributes: [String: NSObject] = [:]
     
     
     override func viewDidLoad() {
@@ -236,6 +225,17 @@ class MemeEditorViewController: UIViewController, UITextFieldDelegate, UIImagePi
     }
  
     func prepareEditorFormat() {
+        
+        //Set the text attributes for two text fields
+        memeTextAttributes = [
+            
+            NSStrokeColorAttributeName : UIColor.blackColor(),
+            NSForegroundColorAttributeName : UIColor.whiteColor(),
+            NSFontAttributeName : UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
+            NSStrokeWidthAttributeName : -3.0,
+            NSKernAttributeName : 2
+        ]
+        
         
         //Set the top and bottom text to TEXT and text attributes
         topMemeText.text = "TOP"
