@@ -7,13 +7,17 @@
 //
 
 import UIKit
+import MobileCoreServices
 
 class MemeEditorViewController: UIViewController, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
+    //UIImage variable to manage image processing and passing later on.
     var mImage: UIImage!
     
+    //To store copy of memes held in AppDelegate
     var memes: [Meme]?
 
+    //Set the outlets
     @IBOutlet weak var topMemeText: UITextField!
     @IBOutlet weak var bottomMemeText: UITextField!
     @IBOutlet weak var memeImage: UIImageView!
@@ -29,12 +33,16 @@ class MemeEditorViewController: UIViewController, UITextFieldDelegate, UIImagePi
     var textFieldWithFocus: Int?
     var i = 1
     
-    //TODO: setting data source for camera
     //TODO: Use firstresponders for field testing
     
     //Create placeholder for text attributes
     var memeTextAttributes: [String: NSObject] = [:]
     
+    
+    override func prefersStatusBarHidden() -> Bool {
+        
+        return true;
+    }
     
     override func viewDidLoad() {
         
@@ -72,6 +80,7 @@ class MemeEditorViewController: UIViewController, UITextFieldDelegate, UIImagePi
         self.tabBarController?.tabBar.hidden = false
     }
 
+    ///Create keyboard functions to call for the keyboard show and hide notifications
     func subscribeToKeyboardNotifications() {
                 
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillShow:", name: UIKeyboardWillShowNotification, object: nil)
@@ -80,6 +89,7 @@ class MemeEditorViewController: UIViewController, UITextFieldDelegate, UIImagePi
                 
     }
     
+    ///Switch off keyoard show and hide notification
     func unsubscribeFromKeyboardNotifications() {
         
         NSNotificationCenter.defaultCenter().removeObserver(self, name:
@@ -91,6 +101,7 @@ class MemeEditorViewController: UIViewController, UITextFieldDelegate, UIImagePi
         
     }
     
+    ///Move frame origin to height of the keyboard
     func keyboardWillShow(notification: NSNotification) {
         if textFieldWithFocus == 2 {
             self.view.frame.origin.y -= getKeyboardHeight(notification)
@@ -98,12 +109,14 @@ class MemeEditorViewController: UIViewController, UITextFieldDelegate, UIImagePi
         
     }
     
+    ///Reset the frame origin to 0 following Bottom field edit
     func keyboardWillHide(notification: NSNotification) {
-        
-        //self.view.frame.origin.y += getKeyboardHeight(notification)
-        self.view.frame.origin.y = 0
+        if textFieldWithFocus == 2 {
+            self.view.frame.origin.y = 0
+        }
     }
     
+    ///Workout the height of the keyboard - use the userInfo from notification class.
     func getKeyboardHeight(notification: NSNotification) -> CGFloat {
             
         let userInfo = notification.userInfo
@@ -111,12 +124,14 @@ class MemeEditorViewController: UIViewController, UITextFieldDelegate, UIImagePi
         return keyboardSize.CGRectValue().height
     }
 
+    /// Upon return key exit the text edit field - same for Top and Bottom
     func textFieldShouldReturn(textField: UITextField) -> Bool {
             textField.resignFirstResponder()
             
             return true;
     }
     
+    ///Manage text editing
     func textFieldShouldBeginEditing(textField: UITextField) -> Bool {
         
         textFieldWithFocus = textField.tag
@@ -124,41 +139,50 @@ class MemeEditorViewController: UIViewController, UITextFieldDelegate, UIImagePi
             return true
     }
     
+    
     func textFieldShouldClear(textField: UITextField) -> Bool {
             return true
     }
 
-    
+    ///Upon cancel button return to the tab bar controller - views of sent memes (table and collection)
     @IBAction func cancelMemeEditor(sender: UIBarButtonItem) {
         
         returntoTabController()
         
     }
+    
+    ///Setup camera for still images only - no videos.
     @IBAction func selectImageFromCamera(sender: UIBarButtonItem) {
+
+        imagePickerController.sourceType = .Camera
+        
+        //Setup the camera for still images only - MemeMe does not support video capture
+        imagePickerController.mediaTypes = [kUTTypeImage as! String]
         
         imagePickerController.allowsEditing = false
-        imagePickerController.sourceType = .Camera
+        imagePickerController.delegate = self
         self.presentViewController(imagePickerController, animated: true, completion: nil)
         
     }
     
+    ///Select images from camera album
     @IBAction func selectImageFromAlbum(sender: UIBarButtonItem) {
             
-            imagePickerController.allowsEditing = false
-            imagePickerController.delegate = self
-            imagePickerController.sourceType = .PhotoLibrary
-            self.presentViewController(imagePickerController, animated: true, completion: nil)
+        imagePickerController.allowsEditing = false
+        imagePickerController.delegate = self
+        imagePickerController.sourceType = .PhotoLibrary
+        self.presentViewController(imagePickerController, animated: true, completion: nil)
             
             
     }
     
+    ///Capture the choses image frommalbum or camera.
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [NSObject : AnyObject]) {
         
         if let pickedImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
             memeImage.image = pickedImage
             memeSaveButtonItem.enabled = true
             self.dismissViewControllerAnimated(true, completion: nil)
-
            
         }
         
@@ -168,6 +192,7 @@ class MemeEditorViewController: UIViewController, UITextFieldDelegate, UIImagePi
         self.dismissViewControllerAnimated(true, completion: nil)
     }
     
+    ///Generate meme image (text+image) and pass to the activity controller for sharing
     @IBAction func shareMeme(sender: UIBarButtonItem) {
         
         mImage = generateMemedImage()
@@ -180,56 +205,56 @@ class MemeEditorViewController: UIViewController, UITextFieldDelegate, UIImagePi
         
         }
     
+    ///Apply some magic to render meme image
     func generateMemedImage() -> UIImage {
         
-       
         memeNavigationBar.hidden = true
         memeToolBar.hidden = true
         
         UIGraphicsBeginImageContext(self.memeImage.frame.size)
         UIGraphicsBeginImageContext(self.view.frame.size)
-        self.view.drawViewHierarchyInRect(self.view.frame,
-            afterScreenUpdates: true)
-        let memedImage : UIImage =
-        UIGraphicsGetImageFromCurrentImageContext()
+        self.view.drawViewHierarchyInRect(self.view.frame,afterScreenUpdates: true)
+        let memedImage : UIImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
         memeNavigationBar.hidden = false
         memeToolBar.hidden = false
-
-       
+        
         return memedImage
+       
         
     }
     
+    ///Create an instance of a meme and store in the AppDelegate for safe keeping
     func saveMeme() {
             
             var meme = Meme(topText: topMemeText.text, bottomText: bottomMemeText.text, memeImage: memeImage.image!, sentMemeImage: mImage!)
-            
             let object = UIApplication.sharedApplication().delegate
             let appDelegate = object as! AppDelegate
             appDelegate.memes.append(meme)
             
     }
     
+    ///Activity VC handler - checks for activity success then saves a meme and returns to the sent memes view
     func saveMemeAfterSharing(activity: String!, completed: Bool, items: [AnyObject]!, error: NSError!) {
             if completed {
                 self.saveMeme()
                 self.returntoTabController()
-                //self.dismissViewControllerAnimated(true, completion: nil)
-        
             }
     }
     
+    
+    ///Takes the view back to the sent memes tab controller.
     func returntoTabController() {
 
         var controller: UITabBarController
         controller = self.storyboard?.instantiateViewControllerWithIdentifier("tabBarController") as! UITabBarController
         self.presentViewController(controller, animated: true, completion: nil)
         
-        
     }
  
+    
+    ///Initialisation function for editor VC defaults, text attributes and check for prescense of a camera (disables the camera button item
     func prepareEditorView() {
         
         //Set the text attributes for two text fields
@@ -247,6 +272,10 @@ class MemeEditorViewController: UIViewController, UITextFieldDelegate, UIImagePi
         //Set the top and bottom text to TEXT and text attributes
         topMemeText.text = "TOP"
         bottomMemeText.text  = "BOTTOM"
+        
+//        topMemeText.adjustsFontSizeToFitWidth = true
+//        bottomMemeText.adjustsFontSizeToFitWidth = true
+
         
         //Set image to nil
         memeImage.image = nil

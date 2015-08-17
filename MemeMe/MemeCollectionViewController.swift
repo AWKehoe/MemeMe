@@ -17,7 +17,6 @@ class MemeCollectionViewController: UIViewController, UICollectionViewDataSource
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
-        self.tabBarController?.tabBar.hidden = false
         
         //Get shared memes object from appdelegate
         let object = UIApplication.sharedApplication().delegate
@@ -26,6 +25,7 @@ class MemeCollectionViewController: UIViewController, UICollectionViewDataSource
         
         
     }
+    
     
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return self.memes!.count
@@ -50,17 +50,22 @@ class MemeCollectionViewController: UIViewController, UICollectionViewDataSource
         
         //Extract the sentMeme image and display in the detail sentMeme image viewer controller
         detailController.meme = self.memes?[indexPath.row]
+        
+        //Hide the Bottom Tab Bar upon the navigation push
+        detailController.hidesBottomBarWhenPushed = true
+       
         self.navigationController!.pushViewController(detailController, animated: true)
         
     }
     
+    ///Open the Meme editor to add new memes
     @IBAction func editMeme(sender: UIBarButtonItem) {
         
         openMemeEditor()
 
     }
 
-    
+    ///Call the memeEditorVC
     func openMemeEditor() {
         
         let object:AnyObject = self.storyboard!.instantiateViewControllerWithIdentifier("MemeEditorVC")!

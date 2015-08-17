@@ -26,10 +26,7 @@ class MemeTableViewController: UIViewController, UITableViewDataSource, UITableV
         let meme = self.memes?[indexPath.row]
         
         // Set the cell attributes - top & bottom text and the image
-        
         cell.textLabel?.text = meme!.topText + "..." + meme!.bottomText
-        //cell.topLabelText?.text = meme?.topText
-        //cell.bottomLabelText.text = meme?.bottomText
         cell.imageView?.image = meme?.sentMemeImage
 
         return cell
@@ -42,6 +39,10 @@ class MemeTableViewController: UIViewController, UITableViewDataSource, UITableV
         
         //Extract the sentMeme image and display in the detail sentMeme image viewer controller
         detailController.meme = self.memes?[indexPath.row]
+        
+        //Hide the bottom tab bar when the meme sent viewer is pushed.
+        detailController.hidesBottomBarWhenPushed = true
+        
         self.navigationController!.pushViewController(detailController, animated: true)
     }
     
@@ -59,12 +60,14 @@ class MemeTableViewController: UIViewController, UITableViewDataSource, UITableV
     
     
     
+    ///Call the meme editor VC to create new memes
     @IBAction func editMeme(sender: AnyObject) {
         
         openMemeEditor()
-        //self.dismissViewControllerAnimated(true, completion: nil)
+
     }
 
+    //Create new memes
     func openMemeEditor() {
         
         let object:AnyObject = self.storyboard!.instantiateViewControllerWithIdentifier("MemeEditorVC")!

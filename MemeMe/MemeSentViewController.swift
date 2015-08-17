@@ -15,18 +15,23 @@ class MemeSentViewController: UIViewController {
     
     @IBOutlet weak var sentMemeImage: UIImageView!
     
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//
-//        sentMemeImage.image = meme?.sentMemeImage
-//        
-//        // Do any additional setup after loading the view.
-//    }
+    
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+       
+
+        
+        // Do any additional setup after loading the view.
+    }
 
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
-        
+
         sentMemeImage.image = meme?.sentMemeImage
+
+
+        
     }
     
     
